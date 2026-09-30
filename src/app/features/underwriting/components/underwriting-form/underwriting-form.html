@@ -1,0 +1,338 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <h1>AI Insurance Underwriting</h1>
+    <p>Property Risk Assessment</p>
+  </div>
+
+  <form
+    [formGroup]="underwritingForm"
+    (ngSubmit)="submit()"
+  >
+
+    <!-- Applicant Information -->
+
+    <mat-card class="form-card">
+
+      <mat-card-header>
+        <mat-card-title>
+          Applicant Information
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content formGroupName="applicant">
+
+        <div class="form-grid">
+
+          <mat-form-field appearance="outline">
+            <mat-label>Full Name</mat-label>
+
+            <input
+              matInput
+              formControlName="fullName"
+              placeholder="John Smith"
+            />
+
+            @if (
+              underwritingForm
+                .get('applicant.fullName')
+                ?.hasError('required')
+            ) {
+              <mat-error>
+                Full name is required
+              </mat-error>
+            }
+
+            @if (
+              underwritingForm
+                .get('applicant.fullName')
+                ?.hasError('minlength')
+            ) {
+              <mat-error>
+                Name must contain at least 2 characters
+              </mat-error>
+            }
+
+          </mat-form-field>
+
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>Email</mat-label>
+
+            <input
+              matInput
+              type="email"
+              formControlName="email"
+              placeholder="john@example.com"
+            />
+
+            @if (
+              underwritingForm
+                .get('applicant.email')
+                ?.hasError('required')
+            ) {
+              <mat-error>
+                Email is required
+              </mat-error>
+            }
+
+            @if (
+              underwritingForm
+                .get('applicant.email')
+                ?.hasError('email')
+            ) {
+              <mat-error>
+                Enter a valid email address
+              </mat-error>
+            }
+
+          </mat-form-field>
+
+        </div>
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- Property Information -->
+
+    <mat-card class="form-card">
+
+      <mat-card-header>
+        <mat-card-title>
+          Property Information
+        </mat-card-title>
+      </mat-card-header>
+
+
+      <mat-card-content formGroupName="property">
+
+        <div class="form-grid">
+
+          <!-- Property Type -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>Property Type</mat-label>
+
+            <mat-select formControlName="propertyType">
+
+              <mat-option value="RESIDENTIAL">
+                Residential
+              </mat-option>
+
+              <mat-option value="COMMERCIAL">
+                Commercial
+              </mat-option>
+
+              <mat-option value="APARTMENT">
+                Apartment
+              </mat-option>
+
+              <mat-option value="VACATION_HOME">
+                Vacation Home
+              </mat-option>
+
+            </mat-select>
+
+            @if (
+              underwritingForm
+                .get('property.propertyType')
+                ?.hasError('required')
+            ) {
+              <mat-error>
+                Property type is required
+              </mat-error>
+            }
+
+          </mat-form-field>
+
+
+          <!-- Location -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>Location</mat-label>
+
+            <input
+              matInput
+              formControlName="location"
+              placeholder="Miami, Florida"
+            />
+
+            @if (
+              underwritingForm
+                .get('property.location')
+                ?.hasError('required')
+            ) {
+              <mat-error>
+                Location is required
+              </mat-error>
+            }
+
+          </mat-form-field>
+
+
+          <!-- Year Built -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>Year Built</mat-label>
+
+            <input
+              matInput
+              type="number"
+              formControlName="yearBuilt"
+            />
+
+            <mat-hint>
+              Example: 1998
+            </mat-hint>
+
+            @if (
+              underwritingForm
+                .get('property.yearBuilt')
+                ?.hasError('required')
+            ) {
+              <mat-error>
+                Year built is required
+              </mat-error>
+            }
+
+            @if (
+              underwritingForm
+                .get('property.yearBuilt')
+                ?.hasError('min')
+            ) {
+              <mat-error>
+                Enter a valid year
+              </mat-error>
+            }
+
+          </mat-form-field>
+
+
+          <!-- Property Value -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>Property Value</mat-label>
+
+            <input
+              matInput
+              type="number"
+              formControlName="propertyValue"
+            />
+
+            <span matTextPrefix>$&nbsp;</span>
+
+            @if (
+              underwritingForm
+                .get('property.propertyValue')
+                ?.hasError('required')
+            ) {
+              <mat-error>
+                Property value is required
+              </mat-error>
+            }
+
+          </mat-form-field>
+
+
+          <!-- Roof Age -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>Roof Age</mat-label>
+
+            <input
+              matInput
+              type="number"
+              formControlName="roofAge"
+            />
+
+            <span matTextSuffix>years</span>
+
+          </mat-form-field>
+
+
+          <!-- Previous Claims -->
+
+          <mat-form-field appearance="outline">
+
+            <mat-label>Previous Claims</mat-label>
+
+            <input
+              matInput
+              type="number"
+              formControlName="previousClaims"
+            />
+
+          </mat-form-field>
+
+        </div>
+
+
+        <!-- Risk Factors -->
+
+        <div class="risk-section">
+
+          <h3>Property Risk Factors</h3>
+
+          <div class="checkbox-grid">
+
+            <mat-checkbox
+              formControlName="fireProtection"
+            >
+              Fire Protection System
+            </mat-checkbox>
+
+
+            <mat-checkbox
+              formControlName="securitySystem"
+            >
+              Security System
+            </mat-checkbox>
+
+
+            <mat-checkbox
+              formControlName="swimmingPool"
+            >
+              Swimming Pool
+            </mat-checkbox>
+
+
+            <mat-checkbox
+              formControlName="trampoline"
+            >
+              Trampoline
+            </mat-checkbox>
+
+          </div>
+
+        </div>
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- Submit -->
+
+    <div class="actions">
+
+      <button
+        mat-raised-button
+        type="submit"
+        [disabled]="underwritingForm.invalid"
+      >
+        Assess Property Risk
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
