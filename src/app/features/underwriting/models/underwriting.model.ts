@@ -12,7 +12,23 @@ export interface PropertyDetails {
 }
 
 export interface UnderwritingApplication {
-  applicantName: string;
-  applicantEmail: string;
+  applicant: {
+    fullName: string;
+    email: string;
+  };
   property: PropertyDetails;
+}
+
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
+
+export interface RiskAssessment {
+  applicationId: string;
+  applicantName: string;
+  propertyType: string;
+  riskScore: number;
+  riskLevel: RiskLevel;
+  riskFactors: string[];
+  protectiveFactors: string[];
+  recommendedAction: string;
+  assessedAt: string;
 }

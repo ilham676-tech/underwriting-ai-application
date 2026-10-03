@@ -1,0 +1,131 @@
+
+<div class="result-container">
+
+  @if (assessment; as result) {
+    <div class="page-header">
+      <div>
+        <h1>Risk Assessment Report</h1>
+        <p>Property underwriting assessment summary</p>
+      </div>
+
+      <button mat-stroked-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        New Assessment
+      </button>
+    </div>
+
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <div class="summary-top">
+          <div>
+            <span class="muted">Application ID</span>
+            <h3>{{ result.applicationId }}</h3>
+          </div>
+          <div class="risk-badge"
+               [class.low]="result.riskLevel === 'LOW'"
+               [class.medium]="result.riskLevel === 'MEDIUM'"
+               [class.high]="result.riskLevel === 'HIGH'">
+            {{ result.riskLevel }} RISK
+          </div>
+        </div>
+
+        <div class="score-section">
+          <div class="score-label">
+            <span>Risk Score</span>
+            <strong>{{ result.riskScore }} / 100</strong>
+          </div>
+
+          <mat-progress-bar
+            mode="determinate"
+            [value]="result.riskScore"
+            [class.low-bar]="result.riskLevel === 'LOW'"
+            [class.medium-bar]="result.riskLevel === 'MEDIUM'"
+            [class.high-bar]="result.riskLevel === 'HIGH'">
+          </mat-progress-bar>
+        </div>
+
+        <p class="disclaimer">
+          Preliminary demonstration score, not an insurance decision.
+        </p>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="details-grid">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Applicant Details</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="muted">Applicant</p>
+          <strong>{{ result.applicantName }}</strong>
+
+          <p class="muted">Property Type</p>
+          <strong>{{ result.propertyType }}</strong>
+
+          <p class="muted">Assessment Date</p>
+          <strong>{{ result.assessedAt | date:'medium' }}</strong>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Risk Factors</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (result.riskFactors.length) {
+            <ul>
+              @for (factor of result.riskFactors; track factor) {
+                <li>{{ factor }}</li>
+              }
+            </ul>
+          } @else {
+            <p>No configured risk factors were identified.</p>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Protective Factors</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (result.protectiveFactors.length) {
+            <ul>
+              @for (factor of result.protectiveFactors; track factor) {
+                <li>{{ factor }}</li>
+              }
+            </ul>
+          } @else {
+            <p>No protective factors were reported.</p>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Suggested Next Step</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ result.recommendedAction }}</p>
+          <p class="muted">
+            Final decisions require authorized human review
+            and applicable underwriting guidelines.
+          </p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  } @else {
+    <mat-card>
+      <mat-card-content>
+        <h2>No assessment available</h2>
+        <p>Please submit a property assessment first.</p>
+        <button mat-raised-button
+                color="primary"
+                (click)="goBack()">
+          Go to Form
+        </button>
+      </mat-card-content>
+    </mat-card>
+  }
+
+</div>

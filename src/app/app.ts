@@ -5,8 +5,8 @@ import { UnderwritingFormComponent } from './features/underwriting/components/un
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet,UnderwritingFormComponent],
-  template: `<app-underwriting-form />`,
+  imports: [RouterOutlet],
+  template: `<router-outlet />`,
   styleUrl: './app.scss'
 })
 export class App {

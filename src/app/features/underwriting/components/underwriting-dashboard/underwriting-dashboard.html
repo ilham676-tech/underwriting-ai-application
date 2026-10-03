@@ -1,0 +1,138 @@
+
+<div class="dashboard-container">
+
+  <div class="page-header">
+    <div>
+      <h1>Underwriting Dashboard</h1>
+      <p>Monitor and review property risk assessments</p>
+    </div>
+
+    <button mat-raised-button color="primary"
+            (click)="createApplication()">
+      <mat-icon>add</mat-icon>
+      New Application
+    </button>
+  </div>
+
+  @if (assessments$ | async; as assessments) {
+    <div class="stats-grid">
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <span>Total Applications</span>
+          <h2>{{ assessments.length }}</h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <span>High Risk</span>
+          <h2 class="high">
+            {{ countByRisk(assessments, 'HIGH') }}
+          </h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <span>Medium Risk</span>
+          <h2 class="medium">
+            {{ countByRisk(assessments, 'MEDIUM') }}
+          </h2>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <span>Low Risk</span>
+          <h2 class="low">
+            {{ countByRisk(assessments, 'LOW') }}
+          </h2>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card class="table-card">
+      <mat-card-content>
+        <div class="table-header">
+          <h2>Application History</h2>
+          <span>{{ filteredAssessments(assessments).length }} results</span>
+        </div>
+
+        <div class="filters">
+          <mat-form-field appearance="outline">
+            <mat-label>Search applications</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput
+                   [formControl]="searchControl"
+                   placeholder="Name or application ID">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Risk Level</mat-label>
+            <mat-select [formControl]="riskControl">
+              <mat-option value="ALL">All Risks</mat-option>
+              <mat-option value="LOW">Low</mat-option>
+              <mat-option value="MEDIUM">Medium</mat-option>
+              <mat-option value="HIGH">High</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        @if (filteredAssessments(assessments).length > 0) {
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Application ID</th>
+                  <th>Applicant</th>
+                  <th>Property</th>
+                  <th>Score</th>
+                  <th>Risk Level</th>
+                  <th>Assessed Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (
+                  item of filteredAssessments(assessments);
+                  track item.applicationId
+                ) {
+                  <tr>
+                    <td>{{ item.applicationId }}</td>
+                    <td>{{ item.applicantName }}</td>
+                    <td>{{ item.propertyType }}</td>
+                    <td>{{ item.riskScore }}/100</td>
+                    <td>
+                      <span class="risk-badge"
+                            [class.low]="item.riskLevel === 'LOW'"
+                            [class.medium]="item.riskLevel === 'MEDIUM'"
+                            [class.high]="item.riskLevel === 'HIGH'">
+                        {{ item.riskLevel }}
+                      </span>
+                    </td>
+                    <td>{{ item.assessedAt | date:'mediumDate' }}</td>
+                    <td>
+                      <button mat-button color="primary"
+                              (click)="viewAssessment(item.applicationId)">
+                        View Report
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>folder_open</mat-icon>
+            <h3>No applications found</h3>
+            <p>
+              Submit an assessment or change your search filters.
+            </p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

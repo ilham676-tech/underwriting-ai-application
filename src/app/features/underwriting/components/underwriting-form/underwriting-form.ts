@@ -11,6 +11,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { Router } from '@angular/router';
+import { UnderwritingService } from '../../services/underwriting.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-underwriting-form',
@@ -22,7 +25,8 @@ import { MatCardModule } from '@angular/material/card';
     MatSelectModule,
     MatCheckboxModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    MatIconModule
   ],
   templateUrl: './underwriting-form.html',
   styleUrl: './underwriting-form.scss'
@@ -30,6 +34,12 @@ import { MatCardModule } from '@angular/material/card';
 export class UnderwritingFormComponent {
 
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+
+  private readonly underwritingService = inject(UnderwritingService);
+
+  isLoading = false;
+  errorMessage: string | null = null;
 
   underwritingForm = this.fb.nonNullable.group({
 
@@ -108,15 +118,34 @@ export class UnderwritingFormComponent {
     })
   });
 
+  
   submit(): void {
-
-    if (this.underwritingForm.invalid) {
+    if (this.underwritingForm.invalid || this.isLoading) {
       this.underwritingForm.markAllAsTouched();
       return;
     }
 
-    console.log(
-      this.underwritingForm.getRawValue()
-    );
+    this.isLoading = true;
+    this.errorMessage = null;
+
+
+    const application = this.underwritingForm.getRawValue();
+
+    this.underwritingService
+      .assessProperty(application)
+      .subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.router.navigate(['/assessment-result']);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = 'Unable to complete the assessment. Please try again.';
+        }
+      });
+  }
+
+  goToDashboard(): void {
+    this.router.navigate(['/dashboard']);
   }
 }
