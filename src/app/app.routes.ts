@@ -20,7 +20,7 @@ export const routes: Routes = [
         .then(m => m.UnderwritingFormComponent)
   },
   {
-    path: 'assessment-result',
+    path: 'assessment-result/:applicationId',
     loadComponent: () =>
       import('./features/underwriting/components/assessment-result/assessment-result')
         .then(m => m.AssessmentResult)

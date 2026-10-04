@@ -54,7 +54,7 @@ describe('UnderwritingFormComponent', () => {
   });
 
   it('should mark fields as touched on invalid submission', () => {
-    component.submit();
+    component.onSubmit();
 
     expect(
       component.underwritingForm.get('applicant.fullName')?.touched
@@ -87,7 +87,7 @@ describe('UnderwritingFormComponent', () => {
       Promise.resolve(true)
     );
 
-    component.submit();
+    component.onSubmit();
 
     expect(serviceSpy.assessProperty).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith([

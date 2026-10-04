@@ -14,6 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { Router } from '@angular/router';
 import { UnderwritingService } from '../../services/underwriting.service';
 import { MatIconModule } from '@angular/material/icon';
+import { AssessmentRequest } from '../../../../models/assessment.model';
 
 @Component({
   selector: 'app-underwriting-form',
@@ -119,31 +120,42 @@ export class UnderwritingFormComponent {
   });
 
   
-  submit(): void {
-    if (this.underwritingForm.invalid || this.isLoading) {
-      this.underwritingForm.markAllAsTouched();
-      return;
-    }
-
-    this.isLoading = true;
-    this.errorMessage = null;
-
-
-    const application = this.underwritingForm.getRawValue();
-
-    this.underwritingService
-      .assessProperty(application)
-      .subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.router.navigate(['/assessment-result']);
-        },
-        error: (error) => {
-          this.isLoading = false;
-          this.errorMessage = 'Unable to complete the assessment. Please try again.';
-        }
-      });
+  onSubmit(): void {
+  if (this.underwritingForm.invalid || this.isLoading) {
+    this.underwritingForm.markAllAsTouched();
+    return;
   }
+
+  const formValue = this.underwritingForm.getRawValue();
+
+  const request: AssessmentRequest = {
+    applicantName: formValue.applicant.fullName,
+    applicantEmail: formValue.applicant.email,
+    propertyDetails: formValue.property
+  };
+
+  this.isLoading = true;
+  this.errorMessage = null;
+
+  this.underwritingService.assessProperty(request)
+    .subscribe({
+      next: (assessment) => {
+        this.isLoading = false;
+        this.router.navigate([
+          '/assessment-result',
+          assessment.applicationId
+        ], {
+          state: { assessment }
+        });
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage =
+          'Unable to assess the property. Please try again.';
+        console.error('Assessment API error:', error);
+      }
+    });
+}
 
   goToDashboard(): void {
     this.router.navigate(['/dashboard']);

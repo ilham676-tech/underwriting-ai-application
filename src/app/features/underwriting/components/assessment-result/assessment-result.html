@@ -1,131 +1,294 @@
-
 <div class="result-container">
+  @if (isLoading) {
 
-  @if (assessment; as result) {
+    <div class="loading-state">
+      <mat-spinner diameter="40"></mat-spinner>
+
+      <p>
+        Loading assessment...
+      </p>
+    </div>
+
+  } @else if (errorMessage) {
+
+    <mat-card class="error-card">
+      <mat-card-content>
+
+        <mat-icon>error_outline</mat-icon>
+
+        <h2>
+          Unable to load assessment
+        </h2>
+
+        <p>
+          {{ errorMessage }}
+        </p>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="backToDashboard()">
+
+          Back to Dashboard
+
+        </button>
+
+      </mat-card-content>
+    </mat-card>
+
+  } @else if (assessment) {
+
     <div class="page-header">
+
       <div>
-        <h1>Risk Assessment Report</h1>
-        <p>Property underwriting assessment summary</p>
+        <h1>
+          Underwriting Assessment
+        </h1>
+
+        <p>
+          Application ID:
+          {{ assessment.applicationId }}
+        </p>
       </div>
 
-      <button mat-stroked-button (click)="goBack()">
+      <button
+        mat-stroked-button
+        (click)="backToDashboard()">
+
         <mat-icon>arrow_back</mat-icon>
-        New Assessment
+        Dashboard
+
       </button>
+
     </div>
 
-    <mat-card class="summary-card">
+
+    <!-- Applicant -->
+
+    <mat-card class="section-card">
+
+      <mat-card-header>
+        <mat-card-title>
+          Applicant Information
+        </mat-card-title>
+      </mat-card-header>
+
       <mat-card-content>
-        <div class="summary-top">
+
+        <div class="details-grid">
+
           <div>
-            <span class="muted">Application ID</span>
-            <h3>{{ result.applicationId }}</h3>
+            <span class="label">
+              Applicant Name: 
+            </span>
+
+            <strong>
+              {{ assessment.applicantName }}
+            </strong>
           </div>
-          <div class="risk-badge"
-               [class.low]="result.riskLevel === 'LOW'"
-               [class.medium]="result.riskLevel === 'MEDIUM'"
-               [class.high]="result.riskLevel === 'HIGH'">
-            {{ result.riskLevel }} RISK
+
+          <div>
+            <span class="label">
+              Email: 
+            </span>
+
+            <strong>
+              {{ assessment.applicantEmail }}
+            </strong>
           </div>
+
         </div>
 
-        <div class="score-section">
-          <div class="score-label">
-            <span>Risk Score</span>
-            <strong>{{ result.riskScore }} / 100</strong>
-          </div>
-
-          <mat-progress-bar
-            mode="determinate"
-            [value]="result.riskScore"
-            [class.low-bar]="result.riskLevel === 'LOW'"
-            [class.medium-bar]="result.riskLevel === 'MEDIUM'"
-            [class.high-bar]="result.riskLevel === 'HIGH'">
-          </mat-progress-bar>
-        </div>
-
-        <p class="disclaimer">
-          Preliminary demonstration score, not an insurance decision.
-        </p>
       </mat-card-content>
+
     </mat-card>
 
-    <div class="details-grid">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Applicant Details</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p class="muted">Applicant</p>
-          <strong>{{ result.applicantName }}</strong>
 
-          <p class="muted">Property Type</p>
-          <strong>{{ result.propertyType }}</strong>
+    <!-- Property -->
 
-          <p class="muted">Assessment Date</p>
-          <strong>{{ result.assessedAt | date:'medium' }}</strong>
-        </mat-card-content>
-      </mat-card>
+    <mat-card class="section-card">
 
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Risk Factors</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          @if (result.riskFactors.length) {
-            <ul>
-              @for (factor of result.riskFactors; track factor) {
-                <li>{{ factor }}</li>
-              }
-            </ul>
-          } @else {
-            <p>No configured risk factors were identified.</p>
-          }
-        </mat-card-content>
-      </mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          Property Information
+        </mat-card-title>
+      </mat-card-header>
 
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Protective Factors</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          @if (result.protectiveFactors.length) {
-            <ul>
-              @for (factor of result.protectiveFactors; track factor) {
-                <li>{{ factor }}</li>
-              }
-            </ul>
-          } @else {
-            <p>No protective factors were reported.</p>
-          }
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Suggested Next Step</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>{{ result.recommendedAction }}</p>
-          <p class="muted">
-            Final decisions require authorized human review
-            and applicable underwriting guidelines.
-          </p>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  } @else {
-    <mat-card>
       <mat-card-content>
-        <h2>No assessment available</h2>
-        <p>Please submit a property assessment first.</p>
-        <button mat-raised-button
-                color="primary"
-                (click)="goBack()">
-          Go to Form
-        </button>
+
+        <div class="details-grid">
+
+          <div>
+            <span class="label">
+              Property Type: 
+            </span>
+
+            <strong>
+              {{ assessment.propertyType }}
+            </strong>
+          </div>
+
+        </div>
+
       </mat-card-content>
+
     </mat-card>
+
+
+    <!-- Risk Assessment -->
+
+    <mat-card class="section-card">
+
+      <mat-card-header>
+        <mat-card-title>
+          Risk Assessment
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+
+        <div class="risk-summary">
+
+          <div class="score">
+
+            <span class="label">
+              Risk Score: 
+            </span>
+
+            <strong>
+              {{ assessment.riskScore }}/100
+            </strong>
+
+          </div>
+
+          <div class="level">
+
+            <span class="label">
+              Risk Level: 
+            </span>
+
+            <span
+              class="risk-badge"
+              [class.low]="assessment.riskLevel === 'LOW'"
+              [class.medium]="assessment.riskLevel === 'MEDIUM'"
+              [class.high]="assessment.riskLevel === 'HIGH'">
+
+              {{ assessment.riskLevel }}
+
+            </span>
+
+          </div>
+
+        </div>
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- Risk Factors -->
+
+    <mat-card class="section-card">
+
+      <mat-card-header>
+        <mat-card-title>
+          Risk Factors
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+
+        @if (assessment.riskFactors.length > 0) {
+
+          <ul>
+            @for (factor of assessment.riskFactors; track factor) {
+              <li>
+                {{ factor }}
+              </li>
+            }
+          </ul>
+
+        } @else {
+
+          <p>
+            No significant risk factors identified.
+          </p>
+
+        }
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- Protective Factors -->
+
+    <mat-card class="section-card">
+
+      <mat-card-header>
+        <mat-card-title>
+          Protective Factors
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+
+        @if (assessment.protectiveFactors.length > 0) {
+
+          <ul>
+            @for (
+              factor of assessment.protectiveFactors;
+              track factor
+            ) {
+              <li>
+                {{ factor }}
+              </li>
+            }
+          </ul>
+
+        } @else {
+
+          <p>
+            No protective factors identified.
+          </p>
+
+        }
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <!-- Recommendation -->
+
+    <mat-card class="recommendation-card">
+
+      <mat-card-header>
+        <mat-card-title>
+          Underwriting Recommendation
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+
+        <p>
+          {{ assessment.recommendation }}
+        </p>
+
+      </mat-card-content>
+
+    </mat-card>
+
+
+    <div class="assessment-footer">
+
+      <span>
+        Created on:
+        {{ assessment.assessedAt | date:'medium' }}
+      </span>
+
+    </div>
+
   }
 
 </div>

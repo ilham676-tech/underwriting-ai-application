@@ -14,7 +14,7 @@
 
   <form
     [formGroup]="underwritingForm"
-    (ngSubmit)="submit()"
+    (ngSubmit)="onSubmit()"
   >
 
     <!-- Applicant Information -->
@@ -337,7 +337,7 @@
       </div>
       }
     
-      <button mat-raised-button type="submit" [disabled]="underwritingForm.invalid || isLoading">
+      <button mat-raised-button type="submit" [disabled]="isLoading">
         @if (isLoading) {
         Assessing...
         } @else {

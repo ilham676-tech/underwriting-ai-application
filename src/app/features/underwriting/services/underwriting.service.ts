@@ -1,5 +1,5 @@
 
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { delay, tap } from 'rxjs/operators';
 
@@ -7,14 +7,22 @@ import {
   UnderwritingApplication,
   RiskAssessment
 } from '../models/underwriting.model';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+import { AssessmentRequest, AssessmentResponse } from '../../../models/assessment.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UnderwritingService {
 
+  private http = inject(HttpClient);
+
+  private readonly apiUrl =
+    `${environment.apiUrl}/underwriting/assessments`;
+
   private readonly assessmentsSubject =
-    new BehaviorSubject<RiskAssessment[]>([]);
+    new BehaviorSubject<AssessmentResponse[]>([]);
 
   readonly assessments$ =
     this.assessmentsSubject.asObservable();
@@ -26,92 +34,48 @@ export class UnderwritingService {
     this.currentAssessmentSubject.asObservable();
 
   assessProperty(
-    application: UnderwritingApplication
-  ): Observable<RiskAssessment> {
+    request: AssessmentRequest
+  ): Observable<AssessmentResponse> {
 
-    const property = application.property;
-    let score = 10;
+    return this.http.post<AssessmentResponse>(
+      this.apiUrl,
+      request
+    ).pipe(
+      tap((assessment) => {
 
-    const riskFactors: string[] = [];
-    const protectiveFactors: string[] = [];
+        const current = this.assessmentsSubject.value;
 
-    if (property.yearBuilt < 2000) {
-      score += 15;
-      riskFactors.push('Property was built before 2000');
-    }
-
-    if (property.roofAge > 15) {
-      score += 20;
-      riskFactors.push('Roof is more than 15 years old');
-    }
-
-    if (property.previousClaims > 0) {
-      score += Math.min(property.previousClaims * 10, 30);
-      riskFactors.push(
-        `${property.previousClaims} previous claims reported`
-      );
-    }
-
-    if (property.swimmingPool) {
-      score += 10;
-      riskFactors.push('Swimming pool present');
-    }
-
-    if (property.trampoline) {
-      score += 15;
-      riskFactors.push('Trampoline present');
-    }
-
-    if (property.fireProtection) {
-      score -= 10;
-      protectiveFactors.push('Fire protection system present');
-    }
-
-    if (property.securitySystem) {
-      score -= 5;
-      protectiveFactors.push('Security system present');
-    }
-
-    score = Math.max(0, Math.min(score, 100));
-
-    const riskLevel =
-      score <= 30 ? 'LOW' :
-      score <= 60 ? 'MEDIUM' : 'HIGH';
-
-    const recommendedAction =
-      riskLevel === 'LOW'
-        ? 'Continue to standard review'
-        : riskLevel === 'MEDIUM'
-          ? 'Request additional property information'
-          : 'Refer for manual underwriting review';
-
-    const assessment: RiskAssessment = {
-      applicationId: `UW-${Date.now()}`,
-      applicantName: application.applicant.fullName,
-      propertyType: property.propertyType,
-      riskScore: score,
-      riskLevel,
-      riskFactors,
-      protectiveFactors,
-      recommendedAction,
-      assessedAt: new Date().toISOString()
-    };
-
-    return of(assessment).pipe(
-      delay(700),
-      tap(result => {
         this.assessmentsSubject.next([
-          result,
-          ...this.assessmentsSubject.value
+          assessment,
+          ...current.filter(
+            item => item.applicationId !== assessment.applicationId
+          )
         ]);
-
-        this.currentAssessmentSubject.next(result);
       })
+    );
+  }
+
+    
+  getAssessments(): Observable<AssessmentResponse[]> {
+    return this.http.get<AssessmentResponse[]>( 
+      this.apiUrl 
+    ).pipe( 
+      tap((assessments) => { 
+        this.assessmentsSubject.next(assessments); 
+      }) 
     );
   }
 
   getCurrentAssessment(): RiskAssessment | null {
     return this.currentAssessmentSubject.value;
+  }
+
+  getAssessmentById(
+    id: string
+  ): Observable<AssessmentResponse> {
+    return this.http.get<AssessmentResponse>(
+      `${this.apiUrl}/${id}`
+    );
   }
 
   openAssessment(applicationId: string): void {
@@ -122,9 +86,5 @@ export class UnderwritingService {
     if (assessment) {
       this.currentAssessmentSubject.next(assessment);
     }
-  }
-
-  getAssessments(): RiskAssessment[] {
-    return this.assessmentsSubject.value;
   }
 }

@@ -1,5 +1,5 @@
 
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -16,6 +16,8 @@ import {
   RiskAssessment,
   RiskLevel
 } from '../../models/underwriting.model';
+import { AssessmentResponse } from '../../../../models/assessment.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-underwriting-dashboard',
@@ -38,6 +40,13 @@ export class UnderwritingDashboard {
   private readonly service = inject(UnderwritingService);
   private readonly router = inject(Router);
 
+  private underwritingService = inject(UnderwritingService);
+
+  assessments: AssessmentResponse[] = [];
+  isLoading = false;
+  errorMessage: string | null = null;
+  private destroyRef = inject(DestroyRef);
+
   readonly assessments$ = this.service.assessments$;
 
   readonly searchControl = new FormControl('', {
@@ -47,6 +56,33 @@ export class UnderwritingDashboard {
   readonly riskControl = new FormControl('ALL', {
     nonNullable: true
   });
+
+  ngOnInit(): void {
+    // Listen for new assessments and history updates 
+    this.underwritingService.assessments$
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(data => { 
+      this.assessments = data; 
+    }); 
+    // Load the latest history from the backend
+    this.loadAssessments();
+  }
+
+  loadAssessments(): void {
+    this.isLoading = true;
+    this.errorMessage = null;
+
+    this.underwritingService.getAssessments()
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe({ next: () => { 
+      this.isLoading = false; 
+    }, 
+    error: (error) => { 
+      this.isLoading = false; 
+      this.errorMessage = 'Unable to load assessment history.'; 
+      console.error('History API error:', error); } 
+    }); 
+  }
 
   readonly displayedColumns = [
     'applicationId',
@@ -59,16 +95,17 @@ export class UnderwritingDashboard {
   ];
 
   filteredAssessments(
-    assessments: RiskAssessment[]
-  ): RiskAssessment[] {
+    assessments: AssessmentResponse[]
+  ): AssessmentResponse[] {
     const search = this.searchControl.value
       .trim()
-      .toLowerCase();
+      .toLowerCase() ?? '';
 
-    const risk = this.riskControl.value;
+    const risk = this.riskControl.value ?? 'ALL';
 
     return assessments.filter(item => {
       const matchesSearch =
+        !search ||
         item.applicantName.toLowerCase().includes(search) ||
         item.applicationId.toLowerCase().includes(search);
 
@@ -80,7 +117,7 @@ export class UnderwritingDashboard {
   }
 
   countByRisk(
-    assessments: RiskAssessment[],
+    assessments: AssessmentResponse[],
     level: RiskLevel
   ): number {
     return assessments.filter(
@@ -89,8 +126,11 @@ export class UnderwritingDashboard {
   }
 
   viewAssessment(applicationId: string): void {
-    this.service.openAssessment(applicationId);
-    this.router.navigate(['/assessment-result']);
+    console.log('applicationId',applicationId);
+    this.router.navigate([
+      '/assessment-result',
+      applicationId
+    ]);
   }
 
   createApplication(): void {

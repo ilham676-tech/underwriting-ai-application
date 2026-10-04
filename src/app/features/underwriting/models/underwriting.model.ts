@@ -21,14 +21,18 @@ export interface UnderwritingApplication {
 
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
-export interface RiskAssessment {
-  applicationId: string;
-  applicantName: string;
-  propertyType: string;
-  riskScore: number;
-  riskLevel: RiskLevel;
-  riskFactors: string[];
-  protectiveFactors: string[];
-  recommendedAction: string;
-  assessedAt: string;
+export interface RiskAssessment { 
+  applicationId: string; 
+  applicantName: string; 
+  applicantEmail: string; 
+  propertyType: string; 
+  riskScore: number; 
+  riskLevel: RiskLevel; 
+  riskFactors: string[]; 
+  protectiveFactors: string[]; 
+  recommendation: string; 
+  assessedAt: string; 
 }
+
+// Alias used by the API/service layer 
+export type AssessmentResponse = RiskAssessment;
